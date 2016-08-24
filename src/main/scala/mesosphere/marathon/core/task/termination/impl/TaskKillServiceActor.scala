@@ -147,6 +147,7 @@ private[impl] class TaskKillServiceActor(
       case (taskId, taskToKill) if taskToKill.attempts >= config.killRetryMax =>
         log.warning("Expunging {} from state: max retries reached", taskId)
         stateOpProcessor.process(TaskStateOp.ForceExpunge(taskId))
+        inFlight.remove(taskId)
 
       case (taskId, taskToKill) if (taskToKill.issued + config.killRetryTimeout) < now =>
         log.warning("No kill ack received for {}, retrying", taskId)
